@@ -1,5 +1,5 @@
-# ENGR_Game
-a fun musical game
+# ENGR_MusicalGame
+a whimsical ear training game
 
 My game is to have a guessing game as to whether the scale or song played is 
 in major or minor. There will be two game modes; one where it is songs that are
