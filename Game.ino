@@ -1,6 +1,15 @@
 #include <Adafruit_CircuitPlayground.h>
 #include <AsyncDelay.h>
 
+//My game idea is to have a guessing game as to whether the scale or song played is 
+//in major or minor. There will be two game modes; one where it is songs that are
+// played and one that has scales get played. The positive button will correspond to
+// a major scale, while the negative button will correspond to the minor scale. 
+//Once you get 5 points in either game mode you win, and you get points if you guess the scale right. 
+//When you guess the scale right it will flash green, and when you get it wrong the lights will flash red. 
+//Score will be kept in white on the leds whenever the game isn't flashing. 
+//Maybe have a time limit on how much time you get to guess.
+
 AsyncDelay delay_10s;
 
 bool leftButtonPressed;
@@ -30,12 +39,21 @@ int points; // how many points player has
 //music stuff
 float midi[127];
 int A_four = 440;
-
+//Setting up arrays of scales to then randomize which scale gets chosen
+int majorArray[7][8] = {{69, 71, 73, 74, 76, 78, 80, 81}, {71, 73, 75, 76, 78, 80, 82, 83}, {60, 62, 64, 65, 67, 69, 71, 72}, {62, 64, 66, 67, 69, 71, 73, 74}, {64, 66, 68, 69, 71, 73, 75, 76}, {65, 67, 69, 70, 72, 74, 76, 77}, {67, 69, 71, 72, 74, 76, 78, 79}};
+//                      A major                          B Major                               C major                       D major                           E major                                     F major                             G major
+int minorArray[7][8] = {{69, 71, 72, 74, 76, 77, 79 ,81}, {71, 73, 74, 76, 78, 79, 81, 83}, {60, 62, 63, 65, 67, 68, 70, 72}, {62, 64, 65, 67, 69, 70, 72, 74}, {64, 66, 67, 69, 71, 72, 74, 76}, {65, 67, 68, 70, 72, 73, 75, 77}, {67, 69, 70, 72, 74, 75, 77, 79}};
+//                              A minor                           B minor                           C minor                         D minor                                 E minor                           F minor                       G minor     
 int sadSong[][2] = {
     {69, 100},  // song[0][0]], song[0][1]]
     {65, 100},  // song[1][0]], song[1][1]]
     {62, 100},  // song[2][0]], song[2][1]]
-//  {127, 200},  // 127 will result in a frequency too high for the speaker to play, resulting in silence. You can use this as a "rest" or blank space in your melody
+  };
+
+int happySong[][2] = {
+    {71, 100},  // song[0][0]], song[0][1]]
+    {75, 100},  // song[1][0]], song[1][1]]
+    {78, 100},  // song[2][0]], song[2][1]]
   };
 
 void setup() {
@@ -120,6 +138,15 @@ void wrongGuess() {
   setColors();
   for(int q = 0; q < sizeof(sadSong) / sizeof(sadSong[0]); q++){
     CircuitPlayground.playTone(midi[sadSong[q][0]], sadSong[q][1]);
+  }
+}
+
+void correctGuess() {
+  CircuitPlayground.clearPixels();
+  i = 0x0000FF;
+  setColors();
+  for(int q = 0; q < sizeof(happySong) / sizeof(happySong[0]); q++){
+    CircuitPlayground.playTone(midi[happySong[q][0]], happySong[q][1]);
   }
 }
 
