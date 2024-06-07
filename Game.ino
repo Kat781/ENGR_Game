@@ -57,7 +57,6 @@ int happySong[][2] = {
   };
 
 void setup() {
-
   Serial.begin(9600);
   CircuitPlayground.begin();
 
@@ -65,72 +64,78 @@ void setup() {
   Serial.println("Starting timers");
    // Start counting
   delay_10s.start(10000, AsyncDelay::MILLIS);
-
   generateMIDI();
 
-    //add switch pins and attach inturrupt
-    attachInterrupt(leftButtPin, leftbuttonISR, RISING);
-    attachInterrupt(rightButtPin, rightbuttonISR, RISING);
-    attachInterrupt(switchPin, slideswitchISR, CHANGE);
+  //add switch pins and attach inturrupt
+  attachInterrupt(leftButtPin, leftbuttonISR, RISING);
+  attachInterrupt(rightButtPin, rightbuttonISR, RISING);
+  attachInterrupt(switchPin, slideswitchISR, CHANGE);
     //read switchpin and save it to a variable
   switchState = digitalRead(7);
   
 }
+
 
 void loop() {
 
 guessState = 0;
 
 //what to do if the switch changes
-    if(slideFlag){
-      mode = 0;
-      delay(500);
-      switchState = digitalRead(7);
-      Serial.print("switchState:");
-      Serial.println(switchState);
-      pointDisplay();
+  if(slideFlag){
+    mode = 0;
+    delay(500);
+    switchState = digitalRead(7);
+    Serial.print("switchState:");
+    Serial.println(switchState);
+    pointDisplay();
 //if the switch state is true turn on
-      if(switchState){
-          Serial.println("On");
+    if(switchState){
+      Serial.println("On");
         // Add in a start up funtion with rainbowness to indicate it starts
-        if(delay_10s.isExpired() && !guessState){
-          wrongGuess();
-          points--;
-          guessState = 1;
-          CircuitPlayground.clearPixels();
-          pointDisplay();
-          delay_10s.repeat();
+      if(delay_10s.isExpired() && !guessState){
+        wrongGuess();
+        points--;
+        guessState = 1;
+        CircuitPlayground.clearPixels();
+        pointDisplay();
+        delay_10s.repeat();
         }
         //scale mode code
 
         // not game play is hopefully so the buttons don't mess with eachother
         //&& !gamePlay
-        if(mode == 1 ){
-          //gamePlay = 1;
-          Serial.println("scale");
-          Serial.println(mode);
+      if (mode == 1) {
 
-
-
-
-
-          }
-        //song mode code
-        if(mode == 2){
-          Serial.println("song");
-          Serial.println(mode);
-
-
-
-
+//just saying that they guessed at all
+        if(rButtFlag || lButtFlag){
+          guessState = 1;
         }
+//
 
-      }
-      else{
-        Serial.println("Off");
+        randomMajorScale();
+        }
+        //song mode code
+      if(mode == 2){
+        Serial.println("song");
+        Serial.println(mode);
+        if(rButtFlag || lButtFlag){
+          guessState = 1;
+        }
       }
     }
+    else{
+      Serial.println("Off");
+    }
   }
+
+  if (lButtFlag) {
+    lButtFlag = false;
+  }
+
+  if (rButtFlag) {
+    rButtFlag = false;
+  }
+}
 
 void wrongGuess() {
   CircuitPlayground.clearPixels();
@@ -143,11 +148,31 @@ void wrongGuess() {
 
 void correctGuess() {
   CircuitPlayground.clearPixels();
-  i = 0x0000FF;
+  i = 0x00FF00;
   setColors();
   for(int q = 0; q < sizeof(happySong) / sizeof(happySong[0]); q++){
     CircuitPlayground.playTone(midi[happySong[q][0]], happySong[q][1]);
   }
+}
+
+void randomMajorScale(){
+  Serial.println("scale");
+  Serial.println(mode);
+  int randomIndex = random(0, 7);  
+  for (int i = 0; i < 8; i++) {
+    CircuitPlayground.playTone(midi[majorArray[randomIndex][i]], 100); 
+    }
+  guessState = 0;
+}
+
+void randomMinorScale(){
+  Serial.println("song");
+  Serial.println(mode);
+  int randomIndex = random(0, 7);  
+  for (int i = 0; i < 8; i++) {
+    CircuitPlayground.playTone(midi[minorArray[randomIndex][i]], 100); 
+    }
+  guessState = 0;
 }
 
 void pointDisplay(){
